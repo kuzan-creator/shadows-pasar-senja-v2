@@ -1,7 +1,7 @@
 // Shadows of Pasar Senja v2 — entrypoint: copies the game and its screenshots
 // into the output directory and writes the dossier buildDossier produces.
 // Runs on Node 22 with the standard library only; no install, no network.
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
@@ -16,13 +16,8 @@ const DOSSIER_CAPS = {
   game_max_bytes: 50331648,
 };
 
-function emptyDir(path: string): void {
-  if (existsSync(path)) rmSync(path, { recursive: true, force: true });
-  mkdirSync(path, { recursive: true });
-}
-
 function handIn(): void {
-  emptyDir(OUT_DIR);
+  mkdirSync(OUT_DIR, { recursive: true });
   for (const name of ['game', 'screenshots']) {
     cpSync(join(REPO_ROOT, name), join(OUT_DIR, name), { recursive: true });
   }
