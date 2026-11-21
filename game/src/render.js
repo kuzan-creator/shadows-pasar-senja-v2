@@ -107,6 +107,51 @@ function drawFloor(ctx, level, t) {
       ctx.moveTo(px + 6 + v * 18, py + 3);
       ctx.lineTo(px + 4 + v * 20, py + TILE - 3);
       ctx.stroke();
+      // Market floor decor: woven mats, lantern-lit puddles, scattered debris.
+      // Flat on the floor — never blocks movement or sight, only fills the eye.
+      if (v < 0.07) {
+        ctx.fillStyle = '#8a4a3c';
+        ctx.beginPath();
+        ctx.roundRect(px + 3, py + 4, TILE - 6, TILE - 8, 3);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(245,185,66,0.28)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.moveTo(px + 3, py + 9 + i * 7);
+          ctx.lineTo(px + TILE - 3, py + 9 + i * 7);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+        ctx.beginPath();
+        ctx.moveTo(px + 11, py + 4);
+        ctx.lineTo(px + 11, py + TILE - 4);
+        ctx.moveTo(px + 21, py + 4);
+        ctx.lineTo(px + 21, py + TILE - 4);
+        ctx.stroke();
+      } else if (v < 0.12) {
+        ctx.fillStyle = 'rgba(39,75,109,0.85)';
+        ctx.beginPath();
+        ctx.ellipse(px + 16, py + 19, 11, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(245,185,66,0.55)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(px + 9, py + 18);
+        ctx.lineTo(px + 23, py + 18);
+        ctx.stroke();
+      } else if (v < 0.18) {
+        ctx.fillStyle = 'rgba(0,0,0,0.28)';
+        for (const [dx, dy] of [[7, 9], [20, 14], [14, 24]]) {
+          ctx.beginPath();
+          ctx.arc(px + dx + v * 4, py + dy, 1.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = 'rgba(245,185,66,0.35)';
+        ctx.beginPath();
+        ctx.arc(px + 12 + v * 8, py + 8, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
       if (ch === ',') {
         ctx.fillStyle = 'rgba(255,235,190,0.05)';
         ctx.fillRect(px, py, TILE, TILE);
@@ -659,6 +704,27 @@ function drawTitle(ctx, s, t) {
     ctx.font = '700 12px system-ui, sans-serif';
     ctx.fillText(i === 0 ? '▶  PRESS ENTER TO PLAY' : '🔒  COMPLETE HEIST ' + i, x + 16, y + 164);
   });
+  // Feature strip: what the heist is made of.
+  const feats = ['▲ Vision cones', '◉ Cameras & tripwires', '◆ Guard dogs', '✦ Ghost bonus +500'];
+  ctx.font = '700 12px system-ui, sans-serif';
+  const gap = 12, pad = 14, chipH = 30;
+  const widths = feats.map((f) => ctx.measureText(f).width + pad * 2);
+  const totalW = widths.reduce((a, b) => a + b, 0) + gap * (feats.length - 1);
+  let cx0 = (CANVAS_W - totalW) / 2;
+  const chipY = 560;
+  feats.forEach((f, i) => {
+    ctx.fillStyle = 'rgba(245,185,66,0.10)';
+    ctx.strokeStyle = 'rgba(245,185,66,0.55)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(cx0, chipY, widths[i], chipH, 15);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffe9a8';
+    ctx.textAlign = 'left';
+    ctx.fillText(f, cx0 + pad, chipY + 20);
+    cx0 += widths[i] + gap;
+  });
   ctx.textAlign = 'center';
   ctx.fillStyle = '#b9a98f';
   ctx.font = '13px system-ui, sans-serif';
@@ -673,6 +739,36 @@ function drawTitle(ctx, s, t) {
     ctx.fillStyle = '#efe6d8';
     ctx.font = '700 16px system-ui, sans-serif';
     ctx.fillText('— PRESS ENTER —', CANVAS_W / 2, 720);
+  }
+  // Hanging lantern garland along the bottom edge.
+  ctx.strokeStyle = 'rgba(245,185,66,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(40, 752);
+  ctx.quadraticCurveTo(CANVAS_W / 2, 770, CANVAS_W - 40, 752);
+  ctx.stroke();
+  for (let i = 0; i < 13; i++) {
+    const lx = 70 + i * 95;
+    const sag = 752 + Math.sin((lx / CANVAS_W) * Math.PI) * 14;
+    const drop = 8 + (i % 3) * 5;
+    ctx.strokeStyle = 'rgba(245,185,66,0.5)';
+    ctx.beginPath();
+    ctx.moveTo(lx, sag);
+    ctx.lineTo(lx, sag + drop);
+    ctx.stroke();
+    const glow = ctx.createRadialGradient(lx, sag + drop + 8, 1, lx, sag + drop + 8, 16);
+    glow.addColorStop(0, 'rgba(245,185,66,0.55)');
+    glow.addColorStop(1, 'rgba(245,185,66,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(lx, sag + drop + 8, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f5b942';
+    ctx.beginPath();
+    ctx.roundRect(lx - 5, sag + drop + 2, 10, 12, 3);
+    ctx.fill();
+    ctx.fillStyle = '#ffe9a8';
+    ctx.fillRect(lx - 2, sag + drop + 5, 4, 6);
   }
 }
 

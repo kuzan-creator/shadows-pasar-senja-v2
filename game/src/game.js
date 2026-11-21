@@ -104,7 +104,7 @@ function startLevel(idx) {
   S.tripped = false;
   S.tripCooldown = 0;
   S.screen = 'play';
-  log(`Heist ${idx + 1}: ${def.name} — ${def.hint}`);
+  log(`Heist ${idx + 1}: ${def.name}`);
   S.banner = def.hint;
 }
 
@@ -169,10 +169,10 @@ function updatePlayer(dt) {
       S.score += LOOT_VALUE;
       addFloat(lx, ly - 14, `+$${LOOT_VALUE}`);
       audio.pickup();
-      log(`Lantern stolen! +$${LOOT_VALUE}  (${S.loot}/3)`);
+      log(`Lantern stolen! +$${LOOT_VALUE}`);
       if (S.loot >= 3) {
         S.level.exitOpen = true;
-        log('All lanterns stolen — the gate is open!');
+        log('All lanterns stolen!');
         S.banner = 'All lanterns stolen — reach the green gate!';
         audio.win();
       }
@@ -191,7 +191,7 @@ function updatePlayer(dt) {
       S.tripped = true;
       S.tripCooldown = 2;
       S.ghost = false;
-      raiseAlarm('Tripwire tripped! The museum is awake!');
+      raiseAlarm('Tripwire tripped!');
     }
   }
   p.ox = p.x;
@@ -219,7 +219,7 @@ function throwCoin(tx, ty) {
   const coin = { x: p.x, y: p.y, tx, ty, t: 0, flying: true };
   S.coinsThrown.push(coin);
   audio.coin();
-  log('Coin thrown — listen for the clink…');
+  log('Coin thrown…');
 }
 
 function throwSmoke() {
@@ -227,7 +227,7 @@ function throwSmoke() {
   S.smoke--;
   S.smokes.push({ x: S.player.x, y: S.player.y, t: 0, life: 1 });
   audio.smoke();
-  log('Smoke! Line of sight broken.');
+  log('Smoke! Sight broken.');
 }
 
 function updateCoins(dt) {
@@ -247,7 +247,7 @@ function updateCoins(dt) {
         }
       }
       addFloat(c.x, c.y - 12, 'WHAT WAS THAT?', '#ffe9a8');
-      log(lured > 0 ? `Clink! ${lured} guard${lured > 1 ? 's turn' : ' turns'} to look.` : 'Clink! Nobody heard it.');
+      log(lured > 0 ? `Clink! ${lured} guard${lured > 1 ? 's turn' : ' turns'}.` : 'Clink! Nobody heard it.');
     }
   }
   S.coinsThrown = S.coinsThrown.filter((c) => c.t < 14);
@@ -277,7 +277,7 @@ function completeLevel() {
       }
     } catch (e) { /* storage unavailable */ }
     audio.win();
-    log(`HEIST COMPLETE! Final score ${S.score}.`);
+    log('HEIST COMPLETE!');
     return;
   }
   S.screen = 'leveldone';
@@ -285,7 +285,7 @@ function completeLevel() {
   S.unlocked = Math.max(S.unlocked, S.levelIndex + 2);
   try { localStorage.setItem(UNLOCK_KEY, String(S.unlocked)); } catch (e) { /* ignore */ }
   audio.win();
-  log(`Heist ${S.levelIndex + 1} complete! +$${bonus} time bonus.`);
+  log(`Heist ${S.levelIndex + 1} complete!`);
   S.score += bonus;
 }
 
@@ -296,7 +296,7 @@ function onCaught(by) {
   S.caughtBy = by.name;
   S.score = Math.max(0, S.score - 150);
   audio.caught();
-  log(`${by.name} caught Raka! Strike ${S.strikes}/3.`);
+  log(`${by.name} caught Raka!`);
   S.screen = 'caught';
 }
 
@@ -318,12 +318,12 @@ function updatePlay(dt) {
   for (const w of [...S.guards, ...S.dogs]) tickWatcher(S.level, w, S.player, dt, events);
   if (events.saw) {
     audio.suspicious();
-    log(`${events.saw.name} is suspicious… (?)`);
+    log(`${events.saw.name} is suspicious…`);
     S.banner = `${events.saw.name} heard something — stay out of the cone!`;
   }
   if (events.alarm) {
     S.ghost = false;
-    raiseAlarm(`SPOTTED! ${events.alarm.name} raised the alarm — break line of sight and hide!`);
+    raiseAlarm(`SPOTTED! ${events.alarm.name} — hide!`);
   }
   if (events.bark) {
     audio.bark();
@@ -333,7 +333,7 @@ function updatePlay(dt) {
   for (const cam of S.cameras) {
     if (tickCamera(S.level, cam, S.player, dt)) {
       S.ghost = false;
-      raiseAlarm('Camera spotted you! Break line of sight!');
+      raiseAlarm('Camera spotted you!');
     }
   }
   // Actions.
